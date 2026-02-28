@@ -1,0 +1,357 @@
+## 📖 **Guía de uso: Transcripción de audio con whisply en Mac M1**
+
+```markdown
+# Guía de uso detallada
+
+## 🎯 Índice
+1. [Primeros pasos](#primeros-pasos)
+2. [Interfaz gráfica (GUI)](#interfaz-gráfica-gui)
+3. [Línea de comandos (CLI)](#línea-de-comandos-cli)
+4. [Diarización de hablantes](#diarización-de-hablantes)
+5. [Formatos de salida](#formatos-de-salida)
+6. [Consejos y trucos](#consejos-y-trucos)
+7. [Solución de problemas](#solución-de-problemas)
+
+---
+
+## 🚀 Primeros pasos
+
+### Activar el entorno
+Siempre que quieras usar el proyecto, primero activa el entorno virtual:
+
+```bash
+cd ~/transcripcion-whisply-m1
+source venv/bin/activate
+```
+
+### Iniciar la interfaz gráfica
+```bash
+whisply app
+```
+Luego abre tu navegador en: **http://127.0.0.1:7860**
+
+---
+
+## 🖥️ Interfaz gráfica (GUI)
+
+### Pantalla principal
+
+Al abrir la interfaz verás:
+
+1. **Selector de archivos** - Arrastra o selecciona tu audio
+2. **Modelo** - Desplegable para elegir el modelo
+3. **Idioma** - Selecciona el idioma del audio
+4. **hf_token** - Campo para tu token de Hugging Face
+5. **Opciones**:
+   - ☐ Diarize (identificar hablantes)
+   - ☐ Subtítulos (generar .srt)
+6. **Botón** - "Transcribir" para empezar
+
+### Flujo de trabajo básico
+
+1. **Selecciona un archivo** (MP3, M4A, WAV, MP4...)
+2. **Elige modelo**: `large-v3-turbo` (mejor equilibrio)
+3. **Idioma**: `es` para español
+4. **Token**: Pégalo SOLO si quieres diarización
+5. **Desmarca "diarize"** si solo quieres texto
+6. **Haz clic en "Transcribir"**
+
+### Durante la transcripción
+
+Verás:
+- Barra de progreso
+- Tiempo transcurrido
+- Mensajes de estado
+- Al final, el texto aparecerá en pantalla
+
+### Dónde se guarda
+Por defecto, en la **misma carpeta del audio** con el mismo nombre + `.txt`
+
+---
+
+## ⌨️ Línea de comandos (CLI)
+
+### Comandos básicos
+
+```bash
+# Ver todos los comandos disponibles
+whisply --help
+
+# Ver opciones de transcripción
+whisply run --help
+```
+
+### Transcripción simple
+
+```bash
+# Mínimo necesario
+whisply run audio.mp3
+
+# Con modelo grande y español (recomendado)
+whisply run audio.mp3 --model large --language es --no-diarize
+```
+
+### Opciones más usadas
+
+| Opción | Descripción | Ejemplo |
+|--------|-------------|---------|
+| `--model` | Modelo a usar | `--model large-v3-turbo` |
+| `--language` | Código de idioma | `--language es` |
+| `--no-diarize` | Sin identificar hablantes | `--no-diarize` |
+| `--diarize` | Con identificación de hablantes | `--diarize` |
+| `--format` | Formato de salida | `--format srt` |
+| `--output` | Carpeta de destino | `--output ~/Transcripciones` |
+| `--verbose` | Mostrar detalles | `--verbose` |
+
+### Ejemplos prácticos
+
+```bash
+# 1. Transcripción rápida con modelo pequeño
+whisply run audio.mp3 --model tiny --language es --no-diarize
+
+# 2. Calidad máxima sin diarización
+whisply run audio.mp3 --model large-v3 --language es --no-diarize
+
+# 3. Con diarización (necesitas token)
+export HUGGINGFACE_TOKEN="hf_token..."
+whisply run audio.mp3 --model large-v3-turbo --language es --diarize
+
+# 4. Guardar en carpeta específica
+whisply run audio.mp3 --model large --language es --output ./mis_transcripciones
+
+# 5. Generar subtítulos
+whisply run audio.mp3 --model large --language es --format srt --output ./subtitulos
+
+# 6. Procesar todos los audios de una carpeta
+whisply run "carpeta/*.mp3" --model large --language es --no-diarize
+```
+
+---
+
+## 👥 Diarización de hablantes
+
+### Qué es
+Identifica **QUIÉN** dice cada frase, no solo lo que se dice.
+
+### Requisitos
+1. ✅ Token de Hugging Face
+2. ✅ Aceptar condiciones de [pyannote/speaker-diarization-3.1](https://hf.co/pyannote/speaker-diarization-3.1)
+3. ✅ Aceptar condiciones de [pyannote/segmentation-3.0](https://hf.co/pyannote/segmentation-3.0)
+
+### Cómo usarla
+
+**Opción 1: Interfaz gráfica**
+1. Pega tu token en el campo `hf_token`
+2. Marca la casilla **"diarize"**
+3. Transcribe normalmente
+
+**Opción 2: Línea de comandos**
+```bash
+export HUGGINGFACE_TOKEN="hf_token..."
+whisply run audio.mp3 --model large --language es --diarize
+```
+
+### Resultado esperado
+```
+[Hablante 1]: Buenos días, bienvenidos a la reunión.
+[Hablante 2]: Gracias por invitarme.
+[Hablante 1]: Hoy vamos a hablar del proyecto.
+[Hablante 3]: Yo tengo algunas ideas que compartir.
+```
+
+---
+
+## 📄 Formatos de salida
+
+### TXT (texto plano)
+```bash
+whisply run audio.mp3 --format txt
+```
+Salida: `audio.txt` con texto plano.
+
+### SRT (subtítulos)
+```bash
+whisply run audio.mp3 --format srt
+```
+Salida: `audio.srt` compatible con reproductores de video.
+
+### VTT (web)
+```bash
+whisply run audio.mp3 --format vtt
+```
+Salida: `audio.vtt` para páginas web.
+
+### JSON (datos estructurados)
+```bash
+whisply run audio.mp3 --format json
+```
+Salida: `audio.json` con metadatos, tiempos, hablantes...
+
+### Todos a la vez
+```bash
+whisply run audio.mp3 --format txt --format srt --format json
+```
+
+---
+
+## 💡 Consejos y trucos
+
+### 🎯 Para máxima calidad
+```bash
+whisply run audio.mp3 --model large-v3 --language es --no-diarize
+```
+- Modelo: `large-v3` (el más grande)
+- Tiempo: ~10 min por hora de audio
+
+### ⚡ Para máxima velocidad
+```bash
+whisply run audio.mp3 --model tiny --language es --no-diarize
+```
+- Modelo: `tiny` (el más pequeño)
+- Tiempo: ~30 seg por hora de audio
+- Precisión: ~70-80%
+
+### ⚖️ Mejor equilibrio (recomendado)
+```bash
+whisply run audio.mp3 --model large-v3-turbo --language es --no-diarize
+```
+- Modelo: `large-v3-turbo`
+- Tiempo: ~5 min por hora de audio
+- Precisión: ~95%
+
+### 🗣️ Para audios en español
+Siempre añade `--language es`. Mejora la precisión notablemente.
+
+### 📁 Organizar por carpetas
+```bash
+# Crear estructura
+mkdir -p ~/Transcripciones/{entrevistas,reuniones,notas}
+
+# Transcribir directamente a cada carpeta
+whisply run entrevista.mp3 --output ~/Transcripciones/entrevistas
+```
+
+### 🔄 Procesar por lotes
+```bash
+# Todos los MP3 de una carpeta
+for file in *.mp3; do
+    echo "Procesando: $file"
+    whisply run "$file" --model large --language es --no-diarize
+done
+```
+
+### 📊 Ver progreso en detalle
+```bash
+whisply run audio.mp3 --verbose
+```
+Muestra tiempos, confianza, tokens procesados...
+
+---
+
+## 🐛 Solución de problemas
+
+### El proceso se queda atascado
+```bash
+# Probar con modelo más pequeño
+whisply run audio.mp3 --model medium --language es --no-diarize
+
+# Ver logs detallados
+whisply run audio.mp3 --verbose
+```
+
+### Error de memoria
+Para audios muy largos (>2 horas):
+```bash
+# Usar modelo medium (consume menos RAM)
+whisply run audio_largo.mp3 --model medium --language es --no-diarize
+```
+
+### La diarización no funciona
+```bash
+# Verificar token
+echo $HUGGINGFACE_TOKEN
+
+# Verificar condiciones aceptadas
+# Vuelve a los enlaces de pyannote y asegúrate de haber hecho clic en "Agree"
+```
+
+### No encuentra el archivo
+```bash
+# Usar ruta absoluta
+whisply run ~/Descargas/mi_audio.mp3
+
+# O navegar primero a la carpeta
+cd ~/Descargas
+whisply run mi_audio.mp3
+```
+
+---
+
+## 📊 Comparativa de modelos
+
+| Modelo | Tamaño | Velocidad | Precisión | Uso recomendado |
+|--------|--------|-----------|-----------|-----------------|
+| `tiny` | ~75MB | ⚡⚡⚡⚡⚡ | ~70% | Pruebas rápidas |
+| `base` | ~150MB | ⚡⚡⚡⚡ | ~80% | Audios cortos |
+| `small` | ~500MB | ⚡⚡⚡ | ~85% | Calidad básica |
+| `medium` | ~1.5GB | ⚡⚡ | ~90% | Equilibrio |
+| `large` | ~3GB | ⚡ | ~95% | Máxima calidad |
+| `large-v3-turbo` | ~1.5GB | ⚡⚡ | ~95% | **MEJOR OPCIÓN** |
+
+---
+
+## 🎓 Ejercicios prácticos
+
+### Ejercicio 1: Primera transcripción
+```bash
+# Descarga un audio de prueba
+curl -o prueba.wav https://www2.cs.uic.edu/~i101/SoundFiles/taunt.wav
+
+# Transcríbelo
+whisply run prueba.wav --model tiny --language en --no-diarize
+
+# Mira el resultado
+cat prueba.txt
+```
+
+### Ejercicio 2: Comparar modelos
+```bash
+# Prueba el mismo audio con diferentes modelos
+whisply run prueba.wav --model tiny --language en --no-diarize
+whisply run prueba.wav --model base --language en --no-diarize
+whisply run prueba.wav --model small --language en --no-diarize
+# Compara la calidad vs tiempo
+```
+
+### Ejercicio 3: Diarización
+```bash
+# Con un audio de 2 personas (necesitas token)
+export HUGGINGFACE_TOKEN="hf_token..."
+whisply run entrevista.wav --model large --language es --diarize
+```
+
+---
+
+## 📚 Referencia rápida
+
+### Códigos de idioma comunes
+- `es` - Español
+- `en` - Inglés
+- `fr` - Francés
+- `de` - Alemán
+- `it` - Italiano
+- `pt` - Portugués
+- `ca` - Catalán
+
+### Atajos útiles
+```bash
+# Añade estos alias a ~/.zshrc
+alias transcribe='whisply run --model large-v3-turbo --language es --no-diarize'
+alias transcribe-diarize='whisply run --model large-v3-turbo --language es --diarize'
+
+# Uso:
+transcribe audio.mp3
+transcribe-diarize reunion.mp3
+```
+
+¿Quieres que añada alguna sección más específica o tienes alguna duda sobre algún comando en particular?
