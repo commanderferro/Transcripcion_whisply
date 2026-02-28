@@ -1,0 +1,24 @@
+# Entornos virtuales
+venv/
+env/
+ENV/
+
+# Archivos de Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Archivos de audio grandes
+*.mp3
+*.m4a
+*.wav
+*.aac
+*.flac
+
+# Archivos de configuración con tokens
+*.env
+.env.local
+
+# MacOS
+.DS_Store
