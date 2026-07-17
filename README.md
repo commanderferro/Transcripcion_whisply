@@ -33,7 +33,7 @@ Proyecto de transcripción automática de audio utilizando **whisply** y **MLX W
 ## 🚀 Cómo ejecutarlo
 ```bash
 # Clonar configuración
-git clone [.com/commanderferro/Transcripcion_whisply/](https://github.com/commanderferro/Transcripcion_whisply)
+git clone https://github.com/commanderferro/Transcripcion_whisply
 cd Transcripcion_whisply
 
 # Activar entorno
